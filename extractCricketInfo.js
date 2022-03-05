@@ -1,9 +1,9 @@
-//   node project.js --src=https://www.espncricinfo.com/series/icc-cricket-world-cup-2019-1144415/match-results
+//   node project.js --excel=worldcup.csv --src=https://www.espncricinfo.com/series/icc-cricket-world-cup-2019-1144415/match-results
 let minimist=require('minimist');
 let axios=require('axios');
 let fs=require('fs');
 let excel=require('excel4node');
-let pdf=require('pdf-lib');
+// let pdf=require('pdf-lib');
 let jsdom=require('jsdom');
 // const { span } = require('prelude-ls');
 let args=minimist(process.argv);
@@ -51,9 +51,44 @@ for(let i=0;i<matches.length;i++)
    
     insertincorrect(teams,matches[i]);
 }
-console.log(teams);
+// console.log(teams);
  let str=JSON.stringify(teams);
+ 
 fs.writeFileSync('teams.json',str,'utf-8');
+createExcel(teams);
+
+
+
+
+
+   function createExcel(teams)
+   { let wb = new excel.Workbook();
+     for(let i=0;i<teams.length;i++)
+     { let sheet=wb.addWorksheet(teams[i].name);
+        sheet.cell(1,1).string("VS");
+        sheet.cell(1,2).string("Self Score");
+        sheet.cell(1,3).string("Opp Score");
+        sheet.cell(1,4).string("Result");
+        
+        // console.log(((teams[i]).matches).length);
+        for(let j=0;j<((teams[i]).matches).length;j++)
+        { 
+        
+            sheet.cell(j+2,1).string(((teams[i]).matches[j]).opp);
+            sheet.cell(j+2,2).string(((teams[i]).matches[j]).score);
+            sheet.cell(j+2,3).string(((teams[i]).matches[j]).oppScore);
+            sheet.cell(j+2,4).string(((teams[i]).matches[j]).result);
+
+
+
+        }
+        
+         
+     }
+
+    wb.write(args.excel);
+   }
+
    function insertTeamIfDoesnotExist(teams,match)
    { 
        let t1idx=teams.findIndex(function(team){
